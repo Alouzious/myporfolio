@@ -28,6 +28,10 @@ pub async fn create_contact(
     pool: web::Data<sqlx::PgPool>,
     payload: web::Json<Contact>,
 ) -> HttpResponse {
+    if payload.name.trim().is_empty() || payload.email.trim().is_empty() || payload.message.trim().is_empty() {
+        return HttpResponse::BadRequest().json(json!({"error": "Name, email, and message are required"}));
+    }
+
     let result = sqlx::query(
         "INSERT INTO contact (name, email, message) 
          VALUES ($1, $2, $3) 
@@ -43,6 +47,16 @@ pub async fn create_contact(
         Ok(row) => {
             let id: uuid::Uuid = row.get("id");
             let created_at: chrono::DateTime<chrono::Utc> = row.get("created_at");
+
+            // Try to send email notification (non-blocking, don't fail the request)
+            let name = payload.name.clone();
+            let email = payload.email.clone();
+            let message = payload.message.clone();
+            tokio::spawn(async move {
+                if let Err(e) = crate::email::send_email(&name, &email, &message).await {
+                    eprintln!("Failed to send email notification: {}", e);
+                }
+            });
 
             HttpResponse::Created().json(json!({
                 "status": "success",
@@ -60,10 +74,36 @@ pub async fn create_contact(
     }
 }
 
+pub async fn delete_contact(
+    pool: web::Data<sqlx::PgPool>,
+    path: web::Path<uuid::Uuid>,
+) -> HttpResponse {
+    let id = path.into_inner();
+    let result = sqlx::query("DELETE FROM contact WHERE id = $1")
+        .bind(id)
+        .execute(pool.get_ref())
+        .await;
+
+    match result {
+        Ok(res) => {
+            if res.rows_affected() == 0 {
+                HttpResponse::NotFound().json(json!({"error": "Contact not found"}))
+            } else {
+                HttpResponse::Ok().json(json!({"status": "deleted"}))
+            }
+        }
+        Err(e) => {
+            eprintln!("Error deleting contact: {:?}", e);
+            HttpResponse::InternalServerError().json(json!({"error": "Failed to delete contact"}))
+        }
+    }
+}
+
 pub fn contact_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/api")
             .route("/contact", web::get().to(get_contacts))
             .route("/contact", web::post().to(create_contact))
+            .route("/contact/{id}", web::delete().to(delete_contact))
     );
 }
