@@ -22,20 +22,24 @@ pub async fn login(payload: web::Json<LoginRequest>) -> HttpResponse {
             "message": "Login successful"
         }))
     } else {
-        HttpResponse::Unauthorized().json(json!({"error": "Invalid credentials"}))
+        HttpResponse::Unauthorized().json(json!({
+            "error": "Invalid credentials"
+        }))
     }
 }
 
 pub async fn verify_token(
     _user: crate::auth::AuthenticatedUser,
 ) -> HttpResponse {
-    HttpResponse::Ok().json(json!({"valid": true}))
+    HttpResponse::Ok().json(json!({
+        "valid": true
+    }))
 }
 
 pub fn auth_route_config(cfg: &mut web::ServiceConfig) {
     cfg.service(
-        web::scope("/api")
-            .route("/auth/login", web::post().to(login))
-            .route("/auth/verify", web::get().to(verify_token))
+        web::scope("/auth")
+            .route("/login", web::post().to(login))
+            .route("/verify", web::get().to(verify_token)),
     );
 }
