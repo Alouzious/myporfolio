@@ -36,7 +36,7 @@ async fn main() -> std::io::Result<()> {
     println!("Server running on http://0.0.0.0:{}", port);
 
     let allowed_origins = env::var("ALLOWED_ORIGINS")
-        .unwrap_or_else(|_| "http://localhost:5173,http://localhost:5174".to_string());
+        .unwrap_or_else(|_| "http://localhost:5173,http://localhost:5174,http://127.0.0.1:5173,http://127.0.0.1:5174".to_string());
     let origins: Vec<String> = allowed_origins.split(',').map(|s| s.trim().to_string()).collect();
 
     HttpServer::new(move || {
