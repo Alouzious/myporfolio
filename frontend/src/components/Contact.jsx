@@ -25,24 +25,24 @@ export default function Contact() {
   }
 
   return (
-    <section id="contact" className="py-20 px-6 bg-gray-950">
+    <section id="contact" className="py-24 px-6 bg-white">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-100 mb-4">Get In Touch</h2>
-          <div className="w-20 h-1 bg-cyan-500 mx-auto rounded-full" />
-          <p className="text-gray-400 mt-4 max-w-md mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Get In Touch</h2>
+          <div className="w-16 h-1 bg-blue-600 mx-auto rounded-full mb-4" />
+          <p className="text-slate-500 max-w-md mx-auto">
             Have a project in mind or just want to say hello? Feel free to reach out.
           </p>
         </div>
 
         <form
           onSubmit={handleSubmit}
-          className="max-w-xl mx-auto bg-gray-900 border border-gray-800 rounded-xl p-8"
+          className="max-w-xl mx-auto bg-white border border-gray-200 rounded-2xl p-8 shadow-sm"
         >
           {/* Name */}
-          <div className="mb-6">
-            <label htmlFor="name" className="flex items-center gap-2 text-gray-300 text-sm font-medium mb-2">
-              <User className="w-4 h-4 text-cyan-400" />
+          <div className="mb-5">
+            <label htmlFor="name" className="flex items-center gap-2 text-slate-700 text-sm font-medium mb-2">
+              <User className="w-4 h-4 text-blue-600" />
               Name
             </label>
             <input
@@ -52,15 +52,15 @@ export default function Contact() {
               value={form.name}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-colors"
+              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
               placeholder="Your name"
             />
           </div>
 
           {/* Email */}
-          <div className="mb-6">
-            <label htmlFor="email" className="flex items-center gap-2 text-gray-300 text-sm font-medium mb-2">
-              <Mail className="w-4 h-4 text-cyan-400" />
+          <div className="mb-5">
+            <label htmlFor="email" className="flex items-center gap-2 text-slate-700 text-sm font-medium mb-2">
+              <Mail className="w-4 h-4 text-blue-600" />
               Email
             </label>
             <input
@@ -70,15 +70,15 @@ export default function Contact() {
               value={form.email}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-colors"
+              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
               placeholder="your@email.com"
             />
           </div>
 
           {/* Message */}
           <div className="mb-6">
-            <label htmlFor="message" className="flex items-center gap-2 text-gray-300 text-sm font-medium mb-2">
-              <MessageSquare className="w-4 h-4 text-cyan-400" />
+            <label htmlFor="message" className="flex items-center gap-2 text-slate-700 text-sm font-medium mb-2">
+              <MessageSquare className="w-4 h-4 text-blue-600" />
               Message
             </label>
             <textarea
@@ -88,7 +88,7 @@ export default function Contact() {
               onChange={handleChange}
               required
               rows={5}
-              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-colors resize-none"
+              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all resize-none"
               placeholder="Your message..."
             />
           </div>
@@ -97,7 +97,7 @@ export default function Contact() {
           <button
             type="submit"
             disabled={status === 'sending'}
-            className="w-full flex items-center justify-center gap-2 bg-cyan-500 hover:bg-cyan-400 disabled:bg-cyan-500/50 text-gray-950 font-semibold px-6 py-3 rounded-lg transition-all duration-300 shadow-lg shadow-cyan-500/25 hover:shadow-cyan-400/40"
+            className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 shadow-sm"
           >
             <Send className="w-4 h-4" />
             {status === 'sending' ? 'Sending...' : 'Send Message'}
@@ -105,13 +105,13 @@ export default function Contact() {
 
           {/* Status messages */}
           {status === 'success' && (
-            <p className="flex items-center justify-center gap-2 mt-4 text-green-400 text-sm">
+            <p className="flex items-center justify-center gap-2 mt-4 text-emerald-600 text-sm font-medium">
               <CheckCircle className="w-4 h-4" />
               Message sent successfully!
             </p>
           )}
           {status === 'error' && (
-            <p className="flex items-center justify-center gap-2 mt-4 text-red-400 text-sm">
+            <p className="flex items-center justify-center gap-2 mt-4 text-red-600 text-sm font-medium">
               <AlertCircle className="w-4 h-4" />
               Failed to send. Please try again.
             </p>

@@ -23,6 +23,7 @@ use routes::{
     social_links::social_links_routes,
     auth_routes::auth_route_config,
     health::health_routes,
+    chat::chat_routes,
 };
 
 #[actix_web::main]
@@ -62,6 +63,7 @@ async fn main() -> std::io::Result<()> {
             .configure(achievement_routes)
             .configure(experience_routes)
             .configure(social_links_routes)
+            .configure(chat_routes)
     })
     .bind(("0.0.0.0", port.parse::<u16>().unwrap()))?
     .run()
