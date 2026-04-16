@@ -59,10 +59,36 @@ pub async fn create_project(
     }
 }
 
+pub async fn delete_project(
+    pool: web::Data<sqlx::PgPool>,
+    path: web::Path<uuid::Uuid>,
+) -> HttpResponse {
+    let id = path.into_inner();
+    let result = sqlx::query("DELETE FROM projects WHERE id = $1")
+        .bind(id)
+        .execute(pool.get_ref())
+        .await;
+
+    match result {
+        Ok(res) => {
+            if res.rows_affected() == 0 {
+                HttpResponse::NotFound().json(json!({"error": "Project not found"}))
+            } else {
+                HttpResponse::Ok().json(json!({"status": "deleted"}))
+            }
+        }
+        Err(e) => {
+            eprintln!("Error deleting project: {:?}", e);
+            HttpResponse::InternalServerError().json(json!({"error": "Failed to delete project"}))
+        }
+    }
+}
+
 pub fn project_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/api")
             .route("/projects", web::get().to(get_projects))
             .route("/projects", web::post().to(create_project))
+            .route("/projects/{id}", web::delete().to(delete_project))
     );
 }

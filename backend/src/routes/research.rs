@@ -58,10 +58,36 @@ pub async fn create_research(
     }
 }
 
+pub async fn delete_research(
+    pool: web::Data<sqlx::PgPool>,
+    path: web::Path<uuid::Uuid>,
+) -> HttpResponse {
+    let id = path.into_inner();
+    let result = sqlx::query("DELETE FROM research WHERE id = $1")
+        .bind(id)
+        .execute(pool.get_ref())
+        .await;
+
+    match result {
+        Ok(res) => {
+            if res.rows_affected() == 0 {
+                HttpResponse::NotFound().json(json!({"error": "Research not found"}))
+            } else {
+                HttpResponse::Ok().json(json!({"status": "deleted"}))
+            }
+        }
+        Err(e) => {
+            eprintln!("Error deleting research: {:?}", e);
+            HttpResponse::InternalServerError().json(json!({"error": "Failed to delete research"}))
+        }
+    }
+}
+
 pub fn research_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/api")
             .route("/research", web::get().to(get_research))
             .route("/research", web::post().to(create_research))
+            .route("/research/{id}", web::delete().to(delete_research))
     );
 }

@@ -6,3 +6,7 @@ pub mod research;
 pub mod myreadings;
 pub mod contact;
 pub mod achievements;
+pub mod experience;
+pub mod social_links;
+pub mod auth_routes;
+pub mod health;

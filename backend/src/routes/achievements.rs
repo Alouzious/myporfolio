@@ -55,10 +55,36 @@ pub async fn create_achievement(
     }
 }
 
+pub async fn delete_achievement(
+    pool: web::Data<sqlx::PgPool>,
+    path: web::Path<uuid::Uuid>,
+) -> HttpResponse {
+    let id = path.into_inner();
+    let result = sqlx::query("DELETE FROM achievements WHERE id = $1")
+        .bind(id)
+        .execute(pool.get_ref())
+        .await;
+
+    match result {
+        Ok(res) => {
+            if res.rows_affected() == 0 {
+                HttpResponse::NotFound().json(json!({"error": "Achievement not found"}))
+            } else {
+                HttpResponse::Ok().json(json!({"status": "deleted"}))
+            }
+        }
+        Err(e) => {
+            eprintln!("Error deleting achievement: {:?}", e);
+            HttpResponse::InternalServerError().json(json!({"error": "Failed to delete achievement"}))
+        }
+    }
+}
+
 pub fn achievement_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/api")
             .route("/achievements", web::get().to(get_achievements))
             .route("/achievements", web::post().to(create_achievement))
+            .route("/achievements/{id}", web::delete().to(delete_achievement))
     );
 }

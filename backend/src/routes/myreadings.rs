@@ -56,10 +56,36 @@ pub async fn create_myreadings(
     }
 }
 
+pub async fn delete_myreadings(
+    pool: web::Data<sqlx::PgPool>,
+    path: web::Path<uuid::Uuid>,
+) -> HttpResponse {
+    let id = path.into_inner();
+    let result = sqlx::query("DELETE FROM myreadings WHERE id = $1")
+        .bind(id)
+        .execute(pool.get_ref())
+        .await;
+
+    match result {
+        Ok(res) => {
+            if res.rows_affected() == 0 {
+                HttpResponse::NotFound().json(json!({"error": "Reading not found"}))
+            } else {
+                HttpResponse::Ok().json(json!({"status": "deleted"}))
+            }
+        }
+        Err(e) => {
+            eprintln!("Error deleting reading: {:?}", e);
+            HttpResponse::InternalServerError().json(json!({"error": "Failed to delete reading"}))
+        }
+    }
+}
+
 pub fn myreadings_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/api")
             .route("/myreadings", web::get().to(get_myreadings))
             .route("/myreadings", web::post().to(create_myreadings))
+            .route("/myreadings/{id}", web::delete().to(delete_myreadings))
     );
 }
