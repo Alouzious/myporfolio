@@ -18,15 +18,15 @@ pub struct ChatRequest {
 }
 
 #[derive(Debug, Serialize)]
-struct OpenAiMessage {
+struct GroqMessage {
     role: String,
     content: String,
 }
 
 #[derive(Debug, Serialize)]
-struct OpenAiRequest {
+struct GroqRequest {
     model: String,
-    messages: Vec<OpenAiMessage>,
+    messages: Vec<GroqMessage>,
     max_tokens: u32,
     temperature: f32,
 }
@@ -114,35 +114,35 @@ fn keyword_response(message: &str) -> String {
     and research interests in this portfolio. What would you like to explore?".to_string()
 }
 
-async fn call_openai(api_key: &str, message: &str, history: &[ChatMessage]) -> Result<String, String> {
+async fn call_groq(api_key: &str, message: &str, history: &[ChatMessage]) -> Result<String, String> {
     let client = reqwest::Client::new();
 
-    let mut messages = vec![OpenAiMessage {
+    let mut messages = vec![GroqMessage {
         role: "system".to_string(),
         content: build_system_prompt(),
     }];
 
     for h in history.iter().take(MAX_HISTORY_MESSAGES) {
-        messages.push(OpenAiMessage {
+        messages.push(GroqMessage {
             role: h.role.clone(),
             content: h.content.clone(),
         });
     }
 
-    messages.push(OpenAiMessage {
+    messages.push(GroqMessage {
         role: "user".to_string(),
         content: message.to_string(),
     });
 
-    let request_body = OpenAiRequest {
-        model: env::var("OPENAI_MODEL").unwrap_or_else(|_| "gpt-3.5-turbo".to_string()),
+    let request_body = GroqRequest {
+        model: env::var("GROQ_MODEL").unwrap_or_else(|_| "llama3-8b-8192".to_string()),
         messages,
         max_tokens: 500,
         temperature: 0.7,
     };
 
     let response = client
-        .post("https://api.openai.com/v1/chat/completions")
+        .post("https://api.groq.com/openai/v1/chat/completions")
         .bearer_auth(api_key)
         .json(&request_body)
         .send()
@@ -150,7 +150,7 @@ async fn call_openai(api_key: &str, message: &str, history: &[ChatMessage]) -> R
         .map_err(|e| e.to_string())?;
 
     if !response.status().is_success() {
-        return Err(format!("OpenAI API error: {}", response.status()));
+        return Err(format!("Groq API error: {}", response.status()));
     }
 
     let body: serde_json::Value = response.json().await.map_err(|e| e.to_string())?;
@@ -177,15 +177,15 @@ pub async fn chat_handler(payload: web::Json<ChatRequest>) -> HttpResponse {
         return HttpResponse::BadRequest().json(json!({ "error": "Message too long" }));
     }
 
-    // Try OpenAI first if API key is configured
-    if let Ok(api_key) = env::var("OPENAI_API_KEY") {
+    // Try Groq first if API key is configured
+    if let Ok(api_key) = env::var("GROQ_API_KEY") {
         if !api_key.is_empty() {
-            match call_openai(&api_key, &message, &payload.history).await {
+            match call_groq(&api_key, &message, &payload.history).await {
                 Ok(reply) => {
                     return HttpResponse::Ok().json(json!({ "reply": reply }));
                 }
                 Err(e) => {
-                    eprintln!("OpenAI API error: {}", e);
+                    eprintln!("Groq API error: {}", e);
                     // Fall through to keyword-based response
                 }
             }
