@@ -10,3 +10,4 @@ pub mod experience;
 pub mod social_links;
 pub mod auth_routes;
 pub mod health;
+pub mod chat;
