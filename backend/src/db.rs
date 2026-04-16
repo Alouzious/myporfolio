@@ -13,5 +13,5 @@ pub async fn connect() -> PgPool {
         .max_connections(10)
         .connect(&database_url)
         .await
-        .expect("Failed to connect to PostgreSQL database")
+        .expect("Failed to connect to PostgreSQL database (Neon)")
 }
