@@ -53,12 +53,12 @@ const fallbackSkills = [
   { id: 13, name: 'Stellar', category: 'Web3/Blockchain', proficiency: 72 },
   { id: 14, name: 'Soroban', category: 'Web3/Blockchain', proficiency: 68 },
   { id: 15, name: 'Solidity', category: 'Web3/Blockchain', proficiency: 65 },
-  { id: 16, name: 'Python', category: 'Languages', proficiency: 85 },
-  { id: 17, name: 'Rust', category: 'Languages', proficiency: 75 },
-  { id: 18, name: 'JavaScript', category: 'Languages', proficiency: 90 },
+  { id: 16, name: 'Git', category: 'Tools', proficiency: 92 },
+  { id: 17, name: 'GitHub', category: 'Tools', proficiency: 90 },
+  { id: 18, name: 'VS Code', category: 'Tools', proficiency: 88 },
   { id: 19, name: 'Docker', category: 'DevOps', proficiency: 75 },
   { id: 20, name: 'Vercel', category: 'DevOps', proficiency: 85 },
-  { id: 21, name: 'Git', category: 'Tools', proficiency: 90 },
+  { id: 21, name: 'Render', category: 'DevOps', proficiency: 80 },
   { id: 22, name: 'REST APIs', category: 'APIs', proficiency: 88 },
 ];
 

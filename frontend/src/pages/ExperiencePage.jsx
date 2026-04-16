@@ -1,6 +1,5 @@
 import Experience from '../components/Experience';
-import { Link } from 'react-router-dom';
-import { Briefcase, ArrowLeft } from 'lucide-react';
+import { Briefcase } from 'lucide-react';
 
 export default function ExperiencePage({ experience }) {
   return (

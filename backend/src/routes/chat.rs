@@ -122,7 +122,7 @@ async fn call_openai(api_key: &str, message: &str, history: &[ChatMessage]) -> R
         content: build_system_prompt(),
     }];
 
-    for h in history.iter().take(10) {
+    for h in history.iter().take(MAX_HISTORY_MESSAGES) {
         messages.push(OpenAiMessage {
             role: h.role.clone(),
             content: h.content.clone(),
@@ -163,6 +163,9 @@ async fn call_openai(api_key: &str, message: &str, history: &[ChatMessage]) -> R
     Ok(reply)
 }
 
+const MAX_MESSAGE_LENGTH: usize = 1000;
+const MAX_HISTORY_MESSAGES: usize = 10;
+
 pub async fn chat_handler(payload: web::Json<ChatRequest>) -> HttpResponse {
     let message = payload.message.trim().to_string();
 
@@ -170,7 +173,7 @@ pub async fn chat_handler(payload: web::Json<ChatRequest>) -> HttpResponse {
         return HttpResponse::BadRequest().json(json!({ "error": "Message cannot be empty" }));
     }
 
-    if message.len() > 1000 {
+    if message.len() > MAX_MESSAGE_LENGTH {
         return HttpResponse::BadRequest().json(json!({ "error": "Message too long" }));
     }
 
