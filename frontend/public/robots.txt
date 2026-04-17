@@ -1,0 +1,8 @@
+# robots.txt for https://alouzious.vercel.app
+# Allow all search engines to crawl everything
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://alouzious.vercel.app/sitemap.xml
