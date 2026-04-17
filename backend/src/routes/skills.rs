@@ -17,14 +17,16 @@ pub async fn get_skills(pool: web::Data<sqlx::PgPool>) -> HttpResponse {
         Ok(skills) => HttpResponse::Ok().json(skills),
         Err(e) => {
             eprintln!("Error fetching skills: {:?}", e);
-            HttpResponse::InternalServerError().json(json!({"error": "Failed to fetch skills"}))
+            HttpResponse::InternalServerError().json(json!({
+                "error": "Failed to fetch skills"
+            }))
         }
     }
 }
 
 pub async fn create_skill(
     pool: web::Data<sqlx::PgPool>,
-    payload: web::Json<Skill>
+    payload: web::Json<Skill>,
 ) -> HttpResponse {
     let result = sqlx::query(
         "INSERT INTO skills (name, category, proficiency) 
@@ -41,15 +43,18 @@ pub async fn create_skill(
         Ok(row) => {
             let id: uuid::Uuid = row.get("id");
             let created_at: chrono::DateTime<chrono::Utc> = row.get("created_at");
-            HttpResponse::Created().json(json!({ 
-                "status": "success", 
+
+            HttpResponse::Created().json(json!({
+                "status": "success",
                 "id": id,
                 "created_at": created_at
             }))
         }
         Err(e) => {
             eprintln!("Error creating skill: {:?}", e);
-            HttpResponse::InternalServerError().json(json!({"error": "Failed to create skill"}))
+            HttpResponse::InternalServerError().json(json!({
+                "error": "Failed to create skill"
+            }))
         }
     }
 }
@@ -59,6 +64,7 @@ pub async fn delete_skill(
     path: web::Path<uuid::Uuid>,
 ) -> HttpResponse {
     let id = path.into_inner();
+
     let result = sqlx::query("DELETE FROM skills WHERE id = $1")
         .bind(id)
         .execute(pool.get_ref())
@@ -67,23 +73,26 @@ pub async fn delete_skill(
     match result {
         Ok(res) => {
             if res.rows_affected() == 0 {
-                HttpResponse::NotFound().json(json!({"error": "Skill not found"}))
+                HttpResponse::NotFound().json(json!({
+                    "error": "Skill not found"
+                }))
             } else {
-                HttpResponse::Ok().json(json!({"status": "deleted"}))
+                HttpResponse::Ok().json(json!({
+                    "status": "deleted"
+                }))
             }
         }
         Err(e) => {
             eprintln!("Error deleting skill: {:?}", e);
-            HttpResponse::InternalServerError().json(json!({"error": "Failed to delete skill"}))
+            HttpResponse::InternalServerError().json(json!({
+                "error": "Failed to delete skill"
+            }))
         }
     }
 }
 
 pub fn skill_routes(cfg: &mut web::ServiceConfig) {
-    cfg.service(
-        web::scope("/api")
-            .route("/skills", web::get().to(get_skills))
-            .route("/skills", web::post().to(create_skill))
-            .route("/skills/{id}", web::delete().to(delete_skill))
-    );
+    cfg.route("/skills", web::get().to(get_skills))
+        .route("/skills", web::post().to(create_skill))
+        .route("/skills/{id}", web::delete().to(delete_skill));
 }

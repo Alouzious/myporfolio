@@ -17,14 +17,16 @@ pub async fn get_myreadings(pool: web::Data<sqlx::PgPool>) -> HttpResponse {
         Ok(readings) => HttpResponse::Ok().json(readings),
         Err(e) => {
             eprintln!("Error fetching readings: {:?}", e);
-            HttpResponse::InternalServerError().json(json!({"error": "Failed to fetch readings"}))
+            HttpResponse::InternalServerError().json(json!({
+                "error": "Failed to fetch readings"
+            }))
         }
     }
 }
 
 pub async fn create_myreadings(
     pool: web::Data<sqlx::PgPool>,
-    payload: web::Json<MyReadings>
+    payload: web::Json<MyReadings>,
 ) -> HttpResponse {
     let result = sqlx::query(
         "INSERT INTO myreadings (title, author, description, book_url, read_date)
@@ -43,6 +45,7 @@ pub async fn create_myreadings(
         Ok(row) => {
             let id: uuid::Uuid = row.get("id");
             let created_at: chrono::DateTime<chrono::Utc> = row.get("created_at");
+
             HttpResponse::Created().json(json!({
                 "status": "success",
                 "id": id,
@@ -51,7 +54,9 @@ pub async fn create_myreadings(
         }
         Err(e) => {
             eprintln!("Error creating reading: {:?}", e);
-            HttpResponse::InternalServerError().json(json!({"error": "Failed to create reading"}))
+            HttpResponse::InternalServerError().json(json!({
+                "error": "Failed to create reading"
+            }))
         }
     }
 }
@@ -61,6 +66,7 @@ pub async fn delete_myreadings(
     path: web::Path<uuid::Uuid>,
 ) -> HttpResponse {
     let id = path.into_inner();
+
     let result = sqlx::query("DELETE FROM myreadings WHERE id = $1")
         .bind(id)
         .execute(pool.get_ref())
@@ -69,23 +75,26 @@ pub async fn delete_myreadings(
     match result {
         Ok(res) => {
             if res.rows_affected() == 0 {
-                HttpResponse::NotFound().json(json!({"error": "Reading not found"}))
+                HttpResponse::NotFound().json(json!({
+                    "error": "Reading not found"
+                }))
             } else {
-                HttpResponse::Ok().json(json!({"status": "deleted"}))
+                HttpResponse::Ok().json(json!({
+                    "status": "deleted"
+                }))
             }
         }
         Err(e) => {
             eprintln!("Error deleting reading: {:?}", e);
-            HttpResponse::InternalServerError().json(json!({"error": "Failed to delete reading"}))
+            HttpResponse::InternalServerError().json(json!({
+                "error": "Failed to delete reading"
+            }))
         }
     }
 }
 
 pub fn myreadings_routes(cfg: &mut web::ServiceConfig) {
-    cfg.service(
-        web::scope("/api")
-            .route("/myreadings", web::get().to(get_myreadings))
-            .route("/myreadings", web::post().to(create_myreadings))
-            .route("/myreadings/{id}", web::delete().to(delete_myreadings))
-    );
+    cfg.route("/myreadings", web::get().to(get_myreadings))
+        .route("/myreadings", web::post().to(create_myreadings))
+        .route("/myreadings/{id}", web::delete().to(delete_myreadings));
 }

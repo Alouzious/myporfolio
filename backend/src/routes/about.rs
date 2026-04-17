@@ -14,7 +14,9 @@ pub async fn get_about(pool: web::Data<sqlx::PgPool>) -> HttpResponse {
         Ok(about) => HttpResponse::Ok().json(about),
         Err(e) => {
             eprintln!("Error fetching about: {:?}", e);
-            HttpResponse::InternalServerError().json(json!({"error": "Failed to fetch about"}))
+            HttpResponse::InternalServerError().json(json!({
+                "error": "Failed to fetch about"
+            }))
         }
     }
 }
@@ -35,18 +37,19 @@ pub async fn update_about(
     .await;
 
     match result {
-        Ok(res) => HttpResponse::Ok().json(json!({ "updated_rows": res.rows_affected() })),
+        Ok(res) => HttpResponse::Ok().json(json!({
+            "updated_rows": res.rows_affected()
+        })),
         Err(e) => {
             eprintln!("Error updating about: {:?}", e);
-            HttpResponse::InternalServerError().json(json!({"error": "Failed to update"}))
+            HttpResponse::InternalServerError().json(json!({
+                "error": "Failed to update"
+            }))
         }
     }
 }
 
 pub fn about_routes(cfg: &mut web::ServiceConfig) {
-    cfg.service(
-        web::scope("/api")
-            .route("/about", web::get().to(get_about))
-            .route("/about", web::post().to(update_about))
-    );
+    cfg.route("/about", web::get().to(get_about))
+        .route("/about", web::post().to(update_about));
 }

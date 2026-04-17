@@ -1,7 +1,7 @@
 // src/main.rs
 use actix_cors::Cors;
-use actix_web::{web, App, HttpServer};
-use dotenv::dotenv;
+use actix_web::{http::header, web, App, HttpServer};
+use dotenv::from_filename;
 use std::env;
 
 mod db;
@@ -13,22 +13,25 @@ mod routes;
 use db::connect;
 use routes::{
     about::about_routes,
-    skills::skill_routes,
+    achievements::achievement_routes,
+    auth_routes::auth_route_config,
+    chat::chat_routes,
+    contact::contact_routes,
+    experience::experience_routes,
+    health::health_routes,
+    myreadings::myreadings_routes,
     projects::project_routes,
     research::research_routes,
-    myreadings::myreadings_routes,
-    contact::contact_routes,
-    achievements::achievement_routes,
-    experience::experience_routes,
+    skills::skill_routes,
     social_links::social_links_routes,
-    auth_routes::auth_route_config,
-    health::health_routes,
-    chat::chat_routes,
 };
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    dotenv().ok();
+    // Load .env explicitly
+    from_filename(".env").ok();
+
+    println!("DATABASE_URL loaded: {}", env::var("DATABASE_URL").is_ok());
 
     let port = env::var("PORT").unwrap_or_else(|_| "8080".to_string());
     let db_pool = connect().await;
@@ -48,7 +51,11 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         let mut cors = Cors::default()
             .allowed_methods(vec!["GET", "POST", "PUT", "DELETE", "OPTIONS"])
-            .allowed_headers(vec!["Content-Type", "Authorization"])
+            .allowed_headers(vec![
+                header::CONTENT_TYPE,
+                header::AUTHORIZATION,
+                header::ACCEPT,
+            ])
             .supports_credentials()
             .max_age(3600);
 

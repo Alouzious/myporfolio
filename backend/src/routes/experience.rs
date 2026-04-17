@@ -17,7 +17,9 @@ pub async fn get_experiences(pool: web::Data<sqlx::PgPool>) -> HttpResponse {
         Ok(experiences) => HttpResponse::Ok().json(experiences),
         Err(e) => {
             eprintln!("Error fetching experiences: {:?}", e);
-            HttpResponse::InternalServerError().json(json!({"error": "Failed to fetch experiences"}))
+            HttpResponse::InternalServerError().json(json!({
+                "error": "Failed to fetch experiences"
+            }))
         }
     }
 }
@@ -44,6 +46,7 @@ pub async fn create_experience(
         Ok(row) => {
             let id: uuid::Uuid = row.get("id");
             let created_at: chrono::DateTime<chrono::Utc> = row.get("created_at");
+
             HttpResponse::Created().json(json!({
                 "status": "success",
                 "id": id,
@@ -52,7 +55,9 @@ pub async fn create_experience(
         }
         Err(e) => {
             eprintln!("Error creating experience: {:?}", e);
-            HttpResponse::InternalServerError().json(json!({"error": "Failed to create experience"}))
+            HttpResponse::InternalServerError().json(json!({
+                "error": "Failed to create experience"
+            }))
         }
     }
 }
@@ -62,6 +67,7 @@ pub async fn delete_experience(
     path: web::Path<uuid::Uuid>,
 ) -> HttpResponse {
     let id = path.into_inner();
+
     let result = sqlx::query("DELETE FROM experience WHERE id = $1")
         .bind(id)
         .execute(pool.get_ref())
@@ -70,23 +76,26 @@ pub async fn delete_experience(
     match result {
         Ok(res) => {
             if res.rows_affected() == 0 {
-                HttpResponse::NotFound().json(json!({"error": "Experience not found"}))
+                HttpResponse::NotFound().json(json!({
+                    "error": "Experience not found"
+                }))
             } else {
-                HttpResponse::Ok().json(json!({"status": "deleted"}))
+                HttpResponse::Ok().json(json!({
+                    "status": "deleted"
+                }))
             }
         }
         Err(e) => {
             eprintln!("Error deleting experience: {:?}", e);
-            HttpResponse::InternalServerError().json(json!({"error": "Failed to delete experience"}))
+            HttpResponse::InternalServerError().json(json!({
+                "error": "Failed to delete experience"
+            }))
         }
     }
 }
 
 pub fn experience_routes(cfg: &mut web::ServiceConfig) {
-    cfg.service(
-        web::scope("/api")
-            .route("/experience", web::get().to(get_experiences))
-            .route("/experience", web::post().to(create_experience))
-            .route("/experience/{id}", web::delete().to(delete_experience))
-    );
+    cfg.route("/experience", web::get().to(get_experiences))
+        .route("/experience", web::post().to(create_experience))
+        .route("/experience/{id}", web::delete().to(delete_experience));
 }

@@ -7,8 +7,5 @@ pub async fn health_check() -> HttpResponse {
 }
 
 pub fn health_routes(cfg: &mut web::ServiceConfig) {
-    cfg.service(
-        web::scope("/api")
-            .route("/health", web::get().to(health_check))
-    );
+    cfg.route("/health", web::get().to(health_check));
 }
